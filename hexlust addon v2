@@ -61,6 +61,9 @@ local CHECK_INTERVAL = 30            -- Seconds between re-checks (fresh, uncach
 local Players = game:GetService("Players")
 local GroupService = game:GetService("GroupService")
 
+-- Prevent double execution (loadstring only once per player)
+local verified = {}
+
 --// Fresh (uncached) group check - detects leaves INSTANTLY
 local function checkGroup(player)
     local success, groups = pcall(function()
@@ -83,6 +86,11 @@ end
 
 --// Verify player ONCE: check + load hub if good
 local function verifyPlayer(player)
+    if verified[player.UserId] then
+        return false  -- already verified → do not run loadstring again
+    end
+    verified[player.UserId] = true
+
     if checkGroup(player) then
         print("Hello world - " .. player.Name .. " is in the group!")
         loadstring(game:HttpGet("https://raw.githubusercontent.com/losermancracker-byte/scripts/refs/heads/main/ak%20v1%20hexlust"))()
